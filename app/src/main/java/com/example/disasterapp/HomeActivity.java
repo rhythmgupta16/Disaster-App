@@ -2,14 +2,12 @@ package com.example.disasterapp;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Bundle;
 import android.content.Intent;
 import android.view.MenuItem;
-import android.widget.Toast;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class HomeActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener{
@@ -19,7 +17,7 @@ public class HomeActivity extends AppCompatActivity implements BottomNavigationV
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        loadFragment(new HomeFragment());
+        loadFragment(new FirstHomeFragment());
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.bottom_navigation);
         navigation.setOnNavigationItemSelectedListener(this);
@@ -44,7 +42,7 @@ public class HomeActivity extends AppCompatActivity implements BottomNavigationV
 
         switch (item.getItemId()) {
             case R.id.action_home:
-                fragment = new HomeFragment();
+                fragment = new FirstHomeFragment();
                 break;
 
             case R.id.action_favorites:

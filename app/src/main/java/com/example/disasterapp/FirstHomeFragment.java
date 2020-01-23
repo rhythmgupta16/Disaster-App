@@ -1,14 +1,9 @@
 package com.example.disasterapp;
 
 import android.Manifest;
-import android.animation.ArgbEvaluator;
-import android.animation.ObjectAnimator;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.hardware.Camera;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraManager;
@@ -22,21 +17,15 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
 import android.widget.Button;
-import android.widget.Toast;
-
-import java.security.Policy;
 
 import static android.Manifest.permission.CALL_PHONE;
 
-public class HomeFragment extends Fragment {
-    Button btnEmergency, btnAlarm, btnStopAudio;
+public class FirstHomeFragment extends Fragment {
+    Button btnEmergency, btnAlarm, btnStopAudio, btnContinue;
     MediaPlayer mp;
     private Camera mCamera;
     private Camera.Parameters parameters;
@@ -47,7 +36,7 @@ public class HomeFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_home,container, false);
+        View view = inflater.inflate(R.layout.fragment_first_home,container, false);
 
 
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) !=
@@ -59,6 +48,7 @@ public class HomeFragment extends Fragment {
         btnEmergency = view.findViewById(R.id.btnEmergency);
         btnAlarm = view.findViewById(R.id.btnAlarm);
         btnStopAudio = view.findViewById(R.id.btnStopAudio);
+        btnContinue = view.findViewById(R.id.btnContinue);
         btnStopAudio.setVisibility(View.INVISIBLE);
         final AudioManager audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
 
@@ -134,6 +124,14 @@ public class HomeFragment extends Fragment {
                     }
                 }
 
+            }
+        });
+
+        btnContinue.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), Main2Activity.class);
+                startActivity(intent);
             }
         });
 

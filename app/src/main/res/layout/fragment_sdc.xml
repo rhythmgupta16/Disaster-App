@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button
+        android:id="@+id/btnTest"
+        android:layout_width="200dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="16dp"
+        android:text="Test"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btnPolice"
+        android:layout_width="200dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="16dp"
+        android:text="Police"
+        app:layout_constraintStart_toStartOf="@+id/btnTest"
+        app:layout_constraintTop_toBottomOf="@+id/btnTest" />
+
+    <Button
+        android:id="@+id/btnFire"
+        android:layout_width="200dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="16dp"
+        android:text="Fire"
+        app:layout_constraintStart_toStartOf="@+id/btnPolice"
+        app:layout_constraintTop_toBottomOf="@+id/btnPolice" />
+
+    <Button
+        android:id="@+id/btnAmbulance"
+        android:layout_width="200dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="16dp"
+        android:text="Ambulance"
+        app:layout_constraintStart_toStartOf="@+id/btnFire"
+        app:layout_constraintTop_toBottomOf="@+id/btnFire" />
+
+    <Button
+        android:id="@+id/btnRoad"
+        android:layout_width="200dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="16dp"
+        android:text="Road Accident"
+        app:layout_constraintStart_toStartOf="@+id/btnAmbulance"
+        app:layout_constraintTop_toBottomOf="@+id/btnAmbulance" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
