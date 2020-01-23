@@ -1,5 +1,6 @@
 package com.example.disasterapp;
 
+import android.Manifest;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
@@ -14,22 +15,33 @@ import android.hardware.camera2.CameraManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.widget.Button;
+import android.widget.Toast;
+
+import java.security.Policy;
+
 import static android.Manifest.permission.CALL_PHONE;
 
 public class HomeFragment extends Fragment {
     Button btnEmergency, btnAlarm, btnStopAudio;
     MediaPlayer mp;
+    private Camera mCamera;
+    private Camera.Parameters parameters;
+    private CameraManager camManager;
+    private Context context;
 
 
     @Nullable
@@ -37,6 +49,11 @@ public class HomeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home,container, false);
 
+
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) !=
+                PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(), new String[] {Manifest.permission.CAMERA},
+                    50); }
 
 
         btnEmergency = view.findViewById(R.id.btnEmergency);
@@ -66,6 +83,18 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
+                //Flash on
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    CameraManager camManager = (CameraManager) getActivity().getSystemService(Context.CAMERA_SERVICE);
+                    String cameraId = null;
+                    try {
+                        cameraId = camManager.getCameraIdList()[0];
+                        camManager.setTorchMode(cameraId, true); //Turn ON
+                    } catch (CameraAccessException e) {
+                        e.printStackTrace();
+                    }
+                }
+
                 //Increase Volume
                 for (int i=0;i<5;i++){
                     audioManager.adjustVolume(AudioManager.ADJUST_RAISE, AudioManager.FLAG_PLAY_SOUND);
@@ -87,10 +116,24 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 btnStopAudio.setVisibility(View.INVISIBLE);
+
                 //Stop audio
                 mp.stop();
                 mp.release();
                 mp = MediaPlayer.create(getContext(), R.raw.alarm);
+
+                //Flash off
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    CameraManager camManager = (CameraManager) getActivity().getSystemService(Context.CAMERA_SERVICE);
+                    String cameraId = null;
+                    try {
+                        cameraId = camManager.getCameraIdList()[0];
+                        camManager.setTorchMode(cameraId, false);
+                    } catch (CameraAccessException e) {
+                        e.printStackTrace();
+                    }
+                }
+
             }
         });
 
