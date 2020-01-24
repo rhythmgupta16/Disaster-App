@@ -2,23 +2,21 @@ package com.example.disasterapp;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-
 import android.os.Looper;
 import android.provider.ContactsContract;
 import android.provider.Settings;
@@ -30,7 +28,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -38,24 +35,19 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.gson.Gson;
-
-import org.json.JSONArray;
-
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
-
+import java.util.Arrays;
 import static android.app.Activity.RESULT_OK;
 import static android.content.ContentValues.TAG;
 
 public class FavoritesFragment extends Fragment {
     private static final int RESULT_PICK_CONTACT = 0;
     private TextView tvPhone, tvName, tvPicked;
-    private Button btnPick, btnSend;
+    private Button btnPick, btnSend, btnShow;
     String message;
     private ContactInfo contact;
     private ArrayList<ContactInfo> contactList = new ArrayList<ContactInfo>();
+    String[] dialogNames = new String[]{};
     int PERMISSION_ID = 44;
     FusedLocationProviderClient mFusedLocationClient;
     TextView latTextView, lonTextView;
@@ -68,12 +60,14 @@ public class FavoritesFragment extends Fragment {
         final View view = inflater.inflate(R.layout.fragment_favorites, null);
 
         btnPick = view.findViewById(R.id.btnPick);
+        btnShow = view.findViewById(R.id.btnShow);
         tvPhone = view.findViewById(R.id.tvPhone);
         tvName = view.findViewById(R.id.tvName);
         tvPicked = view.findViewById(R.id.tvPicked);
         btnSend = view.findViewById(R.id.btnSend);
         latTextView = view.findViewById(R.id.latTextView);
         lonTextView = view.findViewById(R.id.longTextView);
+        btnShow.setVisibility(View.INVISIBLE);
         btnSend.setVisibility(View.INVISIBLE);
         tvPhone.setVisibility(View.INVISIBLE);
         tvName.setVisibility(View.INVISIBLE);
@@ -124,6 +118,27 @@ public class FavoritesFragment extends Fragment {
             }
         });
 
+        btnShow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                AlertDialog.Builder alertdialogbuilder = new AlertDialog.Builder(getContext());
+                alertdialogbuilder.setTitle("Emergency Contacts");
+
+                alertdialogbuilder.setItems(dialogNames, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String selectedText = Arrays.asList(dialogNames).get(which);
+                        dialog.dismiss();
+                    }
+                });
+
+                AlertDialog dialog = alertdialogbuilder.create();
+                dialog.show();
+            }
+        });
+
+
         return view;
     }
 
@@ -152,6 +167,18 @@ public class FavoritesFragment extends Fragment {
                         tvPhone.setText(phoneNo);
                         tvPhone.setVisibility(View.VISIBLE);
                         btnSend.setVisibility(View.VISIBLE);
+                        btnShow.setVisibility(View.VISIBLE);
+
+                        //Alert Dialog
+                        int currentSize = dialogNames.length;
+                        int newSize = currentSize + 1;
+                        String[] tempArray = new String[ newSize ];
+                        for (int i=0; i < currentSize; i++)
+                        {
+                            tempArray[i] = dialogNames [i];
+                        }
+                        tempArray[newSize- 1] = contactName;
+                        dialogNames = tempArray;
 
                         //Making List
                         contact = new ContactInfo();
@@ -159,8 +186,7 @@ public class FavoritesFragment extends Fragment {
                         contact.setPhone(phoneNo);
                         contactList.add(contact);
 
-
-                        Toast.makeText(getActivity(),""+contactList.toString(),Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(),"Successfully added "+ contactName,Toast.LENGTH_SHORT).show();
 
                     } catch (Exception e) {
                         e.printStackTrace();
