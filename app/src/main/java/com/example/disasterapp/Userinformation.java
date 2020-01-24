@@ -9,7 +9,7 @@ public class Userinformation {
     public Userinformation(){
     }
 
-    public Userinformation(String name,String surname, String phoneno){
+    public Userinformation(String name, String surname, String phoneno){
         this.name = name;
         this.surname = surname;
         this.phoneno = phoneno;
