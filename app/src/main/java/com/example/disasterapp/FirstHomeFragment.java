@@ -5,6 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraManager;
 import android.media.AudioManager;
@@ -17,12 +21,17 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
+
+import java.util.Objects;
 
 import static android.Manifest.permission.CALL_PHONE;
+import static android.content.ContentValues.TAG;
 
 public class FirstHomeFragment extends Fragment {
     Button btnEmergency, btnAlarm, btnStopAudio, btnContinue;
@@ -31,6 +40,13 @@ public class FirstHomeFragment extends Fragment {
     private Camera.Parameters parameters;
     private CameraManager camManager;
     private Context context;
+
+    //Sensor
+    private SensorManager mSensorManager;
+    private float mAccel;
+    private float mAccelCurrent;
+    private float mAccelLast;
+    AudioManager audioManager;
 
 
     @Nullable
@@ -45,12 +61,20 @@ public class FirstHomeFragment extends Fragment {
                     50); }
 
 
+        //Sensor
+        mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+        Objects.requireNonNull(mSensorManager).registerListener(mSensorListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+                SensorManager.SENSOR_DELAY_NORMAL);
+        mAccel = 10f;
+        mAccelCurrent = SensorManager.GRAVITY_EARTH;
+        mAccelLast = SensorManager.GRAVITY_EARTH;
+
         btnEmergency = view.findViewById(R.id.btnEmergency);
         btnAlarm = view.findViewById(R.id.btnAlarm);
         btnStopAudio = view.findViewById(R.id.btnStopAudio);
         btnContinue = view.findViewById(R.id.btnContinue);
         btnStopAudio.setVisibility(View.INVISIBLE);
-        final AudioManager audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
+        audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
 
         mp = MediaPlayer.create(getContext(), R.raw.alarm);
 
@@ -72,33 +96,8 @@ public class FirstHomeFragment extends Fragment {
         btnAlarm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+            startAlarm();
 
-                //Flash on
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    CameraManager camManager = (CameraManager) getActivity().getSystemService(Context.CAMERA_SERVICE);
-                    String cameraId = null;
-                    try {
-                        cameraId = camManager.getCameraIdList()[0];
-                        camManager.setTorchMode(cameraId, true); //Turn ON
-                    } catch (CameraAccessException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                //Increase Volume
-                for (int i=0;i<5;i++){
-                    audioManager.adjustVolume(AudioManager.ADJUST_RAISE, AudioManager.FLAG_PLAY_SOUND);
-                }
-
-                //Start Playing audio
-                try {
-                    if (mp.isPlaying()) {
-                        mp.stop();
-                        mp.release();
-                        mp = MediaPlayer.create(getContext(), R.raw.alarm);
-                    } mp.start();
-                    btnStopAudio.setVisibility(View.VISIBLE);
-                } catch(Exception e) { e.printStackTrace(); }
             }
         });
 
@@ -138,5 +137,66 @@ public class FirstHomeFragment extends Fragment {
         return view;
     }
 
+    private void startAlarm(){
+        //Flash on
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            CameraManager camManager = (CameraManager) getActivity().getSystemService(Context.CAMERA_SERVICE);
+            String cameraId = null;
+            try {
+                cameraId = camManager.getCameraIdList()[0];
+                camManager.setTorchMode(cameraId, true); //Turn ON
+            } catch (CameraAccessException e) {
+                e.printStackTrace();
+            }
+        }
+
+        //Increase Volume
+        for (int i=0;i<5;i++){
+            audioManager.adjustVolume(AudioManager.ADJUST_RAISE, AudioManager.FLAG_PLAY_SOUND);
+        }
+
+        //Start Playing audio
+        try {
+            if (mp.isPlaying()) {
+                mp.stop();
+                mp.release();
+                mp = MediaPlayer.create(getContext(), R.raw.alarm);
+            } mp.start();
+            btnStopAudio.setVisibility(View.VISIBLE);
+        } catch(Exception e) { e.printStackTrace(); }
+    }
+
+    //Sensor
+    private final SensorEventListener mSensorListener = new SensorEventListener() {
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            float x = event.values[0];
+            float y = event.values[1];
+            float z = event.values[2];
+            mAccelLast = mAccelCurrent;
+            mAccelCurrent = (float) Math.sqrt((double) (x * x + y * y + z * z));
+            float delta = mAccelCurrent - mAccelLast;
+            mAccel = mAccel * 0.9f + delta;
+            if (mAccel > 12) {
+                Toast.makeText(getContext(), "Shake Detected", Toast.LENGTH_SHORT).show();
+                Log.i(TAG, "onSensorChanged: SHAKE DETECTED");
+                startAlarm();
+            }
+        }
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        }
+    };
+    @Override
+    public void onResume() {
+        mSensorManager.registerListener(mSensorListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+                SensorManager.SENSOR_DELAY_NORMAL);
+        super.onResume();
+    }
+    @Override
+    public void onPause() {
+        mSensorManager.unregisterListener(mSensorListener);
+        super.onPause();
+    }
 
 }
