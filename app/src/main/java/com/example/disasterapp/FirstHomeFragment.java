@@ -151,7 +151,7 @@ public class FirstHomeFragment extends Fragment {
         }
 
         //Increase Volume
-        for (int i=0;i<5;i++){
+        for (int i=0;i<20;i++){
             audioManager.adjustVolume(AudioManager.ADJUST_RAISE, AudioManager.FLAG_PLAY_SOUND);
         }
 
