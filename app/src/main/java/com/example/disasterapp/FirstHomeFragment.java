@@ -1,6 +1,7 @@
 package com.example.disasterapp;
 
 import android.Manifest;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -21,6 +22,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import android.speech.RecognizerIntent;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,18 +31,24 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Objects;
 
 import static android.Manifest.permission.CALL_PHONE;
+import static android.app.Activity.RESULT_OK;
 import static android.content.ContentValues.TAG;
 
 public class FirstHomeFragment extends Fragment {
-    Button btnEmergency, btnAlarm, btnStopAudio, btnContinue;
+    Button btnEmergency, btnAlarm, btnStopAudio, btnContinue, btnVoice;
     MediaPlayer mp;
     private Camera mCamera;
     private Camera.Parameters parameters;
     private CameraManager camManager;
     private Context context;
+
+    private final int REQ_CODE = 100;
+
 
     //Sensor
     private SensorManager mSensorManager;
@@ -73,6 +82,7 @@ public class FirstHomeFragment extends Fragment {
         btnAlarm = view.findViewById(R.id.btnAlarm);
         btnStopAudio = view.findViewById(R.id.btnStopAudio);
         btnContinue = view.findViewById(R.id.btnContinue);
+        btnVoice = view.findViewById(R.id.btnVoice);
         btnStopAudio.setVisibility(View.INVISIBLE);
         audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
 
@@ -98,6 +108,13 @@ public class FirstHomeFragment extends Fragment {
             public void onClick(View v) {
             startAlarm();
 
+            }
+        });
+
+        btnVoice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                voiceRecognition();
             }
         });
 
@@ -136,6 +153,23 @@ public class FirstHomeFragment extends Fragment {
 
         return view;
     }
+
+    private void voiceRecognition()
+    {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Need to speak");
+        try {
+            startActivityForResult(intent, REQ_CODE);
+        } catch (ActivityNotFoundException a) {
+            Toast.makeText(getContext(),
+                    "Sorry your device not supported",
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
     private void startAlarm(){
         //Flash on
@@ -197,6 +231,22 @@ public class FirstHomeFragment extends Fragment {
     public void onPause() {
         mSensorManager.unregisterListener(mSensorListener);
         super.onPause();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case REQ_CODE: {
+                if (resultCode == RESULT_OK && null != data) {
+                    ArrayList result = data
+                            .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    Toast.makeText(getContext(),"Add action for "+result.get(0) ,Toast.LENGTH_SHORT).show();
+                    //textView.setText(result.get(0));
+                }
+                break;
+            }
+        }
     }
 
 }

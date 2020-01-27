@@ -9,7 +9,7 @@
     <Button
         android:id="@+id/btnEmergency"
         android:layout_width="300dp"
-        android:layout_height="200dp"
+        android:layout_height="170dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_marginTop="32dp"
@@ -25,7 +25,7 @@
     <Button
         android:id="@+id/btnAlarm"
         android:layout_width="300dp"
-        android:layout_height="200dp"
+        android:layout_height="170dp"
         android:layout_marginTop="32dp"
         android:background="@color/design_default_color_secondary"
         android:text="ALARM"
@@ -51,12 +51,22 @@
         android:id="@+id/btnContinue"
         android:layout_width="300dp"
         android:layout_height="70dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:text="More Features"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnStopAudio"
+        app:layout_constraintTop_toBottomOf="@+id/btnVoice"
         app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/btnVoice"
+        android:layout_width="300dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="20dp"
+        android:text="Voice Assistant"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnStopAudio" />
 </androidx.constraintlayout.widget.ConstraintLayout>
